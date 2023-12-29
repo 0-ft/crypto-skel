@@ -15,7 +15,7 @@ class DiffieHellman:
         dedent()
 
     def keypair(self, d):
-        print(f"generating keypair with x = {x}")
+        print(f"generating keypair with d = {d}")
         indent()
         y = pow(self.g, d, self.p)
         print(f"g^d mod p = {y}")
@@ -30,7 +30,10 @@ class DiffieHellman:
         return s
 
 
-t = DiffieHellman(37, 2)
-ss = t.shared_secret(5, 6)
+# t = DiffieHellman(37, 2)
+# ss = t.shared_secret(5, 6)
 
-print(ss)
+# print(ss)
+    
+d = DiffieHellman(59, 2)
+kpA = d.keypair(9)

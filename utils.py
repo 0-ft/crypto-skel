@@ -1,7 +1,9 @@
 import math
 import builtins
+from itertools import islice
 
 ilevel = 0
+psuppress = False
 def indent():
     global ilevel
     ilevel += 1
@@ -10,7 +12,18 @@ def dedent():
     global ilevel
     ilevel -= 1
 
+def suppress():
+    global psuppress
+    psuppress = True
+
+def unsuppress():
+    global psuppress
+    psuppress = False
+
+
 def print(s):
+    if psuppress:
+        return
     global ilevel
     id = '   ' * ilevel
     builtins.print(id + str(s).replace('\n', '\n' + id))
@@ -128,7 +141,7 @@ def double_and_add(a, b):
     return accumulator
 
 
-def square_and_multiply(base, exponent):
+def square_and_multiply(base, exponent, modulus=None):
     print(f"Computing {base} ^ {exponent} using square and multiply algorithm")
     indent()
 
@@ -154,26 +167,30 @@ def square_and_multiply(base, exponent):
         step = i
 
         if step > 0:
-            base_squared = base_squared ** 2
-            operations = ["Square base"]
+            operations = [f"({base_squared}^2={base_squared**2}) mod {modulus} = {pow(base_squared, 2, modulus)}" if modulus else f"{base_squared}^2={base_squared**2}"]
+            base_squared = pow(base_squared, 2, modulus)
             multiplication_count += 1
         else:
             operations = []
 
         # If the bit is 1, multiply the accumulator with the base
         if bit == '1':
+            operations += [
+                f"({accumulator}*{base_squared}={accumulator*base_squared}) mod {modulus} = {(accumulator*base_squared)%modulus}"
+                if modulus else f"{accumulator}*{base_squared}={accumulator*base_squared}"]
             accumulator *= base_squared
+            if modulus:
+                accumulator %= modulus
             multiplication_count += 1
-            operations += ["Multiply with Accum"]
 
         # Print the current step details
-        print(f"│ {step:<6} │ {2 ** step:<10} │ {base_squared:<12} │ {bit:<8} │ {accumulator:<12} │ {', '.join(operations):<24} │")
+        print(f"│ {step:<6} │ {2 ** step:<10} │ {base_squared:<12} │ {bit:<8} │ {accumulator:<12} │ {', '.join(operations):<24} ")
 
     # Print the closing line of the table
     print('└' + '─' * (len(header) - 2) + '┘')
 
     # Print the final result and the count of multiplication operations
-    assert accumulator == base ** exponent
+    assert accumulator == pow(base, exponent, modulus)
     print(f"\nResult: {accumulator}")
     print(f"Total multiplication operations: {multiplication_count}")
     dedent()
@@ -183,3 +200,66 @@ def square_and_multiply(base, exponent):
 #     if t.encrypt(tt, pk[0]) == 94755:
 #         print(tt)
 # mod_inverse(11, 17)
+
+def prime_factors(n, return_powers=False):
+    factors = []
+    N = n
+    while n % 2 == 0:
+        factors.append(2)
+        n //= 2
+    for i in range(3, int(n ** 0.5 + 1), 2):
+        while n % i == 0:
+            factors.append(i)
+            n //= i
+    if n > 2:
+        factors.append(n)
+    powers = [(f, factors.count(f)) for f in set(factors)]
+    # print(f"{N} = {' * '.join([f'{f}^{p}' for f, p in powers])}")
+    return [b**e for b,e in powers] if return_powers else factors
+
+def is_generator(g, p):
+    # print(f"{g, p}")
+    phi = p - 1
+    factors = prime_factors(phi)
+
+    for f in factors:
+        if pow(g, phi//f, p) == 1:
+            # print(f"not a generator: {g}^{phi//f} mod {p} = 1")
+            return False
+    
+    return True
+    # if all(pow(g, phi//f, p) != 1 for f in factors):
+    #     print("cand")
+    #     return True
+    
+    # return False
+
+def find_generators(p):
+    # print(f"finding generators of Z_{p}")
+    # indent()
+    assert is_prime(p)
+    # print(f"{p} is prime ✅")
+    # phi = p - 1
+    # factors = prime_factors(phi)
+    # print(f"phi = {phi}")
+    # dedent()
+    # generators = []
+    for g in range(2, p):
+        if is_generator(g, p):
+            yield g
+            # generators.append(g)
+        # if len(generators) >= max:
+        #     break
+    # print(f"generators = {generators}... 🏁")
+    # dedent()
+    # return generators
+
+# find_generators(2*3*5*7*11*13*17*19*23*29*31+1)
+
+smallprimes = [n for n in range(2, 400) if is_prime(n)]
+bigprimes = [n for n in range(10000, 100000) if is_prime(n)][::100]
+
+# for g in find_generators(bigprimes[0]):
+#     print(g)
+
+# square_and_multiply(3, 13, 77)

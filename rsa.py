@@ -1,10 +1,17 @@
-from utils import mod_inverse, is_prime, indent, dedent, print
+from itertools import islice
+import random
+from utils import mod_inverse, is_prime, indent, dedent, prime_factors, print, bigprimes, find_generators
 import math
 
 class RSA:
-    def __init__(self, p=None, q=None, k=None, n=None):
+    def __init__(self, p=None, q=None, n=None):
         print("initializing RSA")
         indent()
+        if n is not None and p is None and q is None:
+            facs = prime_factors(n)
+            assert len(facs) == 2, "n must have exactly two prime factors"
+            p, q = facs
+            print(f"found prime factors of {n}: p={p}, q={q} ✅")
         self.p = p
         self.q = q
         if p:
@@ -28,20 +35,17 @@ class RSA:
         
 
     def keypair(self, e):
-        """
-        Generate a keypair using RSA algorithm
-        """
-        print(f"generating keypair with e = {e}")
+        print(f"generating keypair with PUBLIC e = {e}")
         indent()
         assert self.phi
-        assert e < self.phi
+        print(f"e < phi ✅")
         assert math.gcd(e, self.phi) == 1
         print("e is coprime to phi ✅")
 
         d = mod_inverse(e, self.phi)
         print(f"d = {d}")
         kp = ((e, self.n), (d, self.n))
-        print(f"keypair = {kp} 🏁")
+        print(f"keypair = (pk, sk) = {kp} 🏁")
         dedent()
 
         return kp
@@ -66,7 +70,38 @@ class RSA:
         print(f"decrypted ciphertext {cc}, m = {m} 🏁")
         return m
 
-t = RSA(p=307, q=311)
-pk, sk = t.keypair(247)
+    def sign(self, m, d):
+        sig = pow(m, d, self.n)
+        print(f"signed message {m}, sig = {sig} 🏁")
+        return sig
+    
+    def verify(self, m, sig, e):
+        v = pow(sig, e, self.n) == m
+        if v:
+            print(f"sig^e mod n = m: signature is valid ✅")
+        else:
+            print(f"sig^e mod n ≠ m: signature is invalid ❌")
+        return v
 
-cc = [94755, 87565, 41862, 49231, 34234, 17479, 26771, 87503]
+# t = RSA(p=307, q=311)
+# pk, sk = t.keypair(247)
+
+# cc = [94755, 87565, 41862, 49231, 34234, 17479, 26771, 87503]
+
+
+def test_signverif():
+    for i in range(100):
+        p = random.choice(bigprimes)
+        q = p
+        while q == p:
+            q = random.choice(bigprimes)
+        assert p != q
+        rsa = RSA(p=p, q=q)
+        e = random.choice(list(islice((e for e in range(1, rsa.phi) if math.gcd(e, rsa.phi) == 1), 10)))
+        pk, sk = rsa.keypair(e)
+        m = random.randrange(1, rsa.n)
+        sig = rsa.sign(m, sk[0])
+        assert rsa.verify(m, sig, pk[0])
+        assert not rsa.verify(m+1, sig, pk[0])
+        assert not rsa.verify(m, sig+1, pk[0])
+        # assert verify(sign())
