@@ -1,3 +1,5 @@
+from itertools import islice
+import random
 from utils import mod_inverse, is_prime, indent, dedent, print, prime_factors, is_generator, find_generators
 import math
 
@@ -38,7 +40,7 @@ def pohlig_hellman(p, g, a):
     print(f"{p} is prime ✅")
     assert is_generator(g, p)
     print(f"{g} is a generator of {p} ✅")
-    facs = prime_factors(p - 1)
+    facs = prime_factors(p - 1, return_powers=True)
     modpairs = []
     for f, rest in [(facs[i], facs[:i]+facs[i+1:]) for i in range(len(facs))][::-1]:
         print(f"factor f = {f}")
@@ -66,5 +68,6 @@ def pohlig_hellman(p, g, a):
     return sol
 
 # gens = find_generators(37)
-# mps = pohlig_hellman(2*3*5*7*11*13*17*19*23*29*31+1, 79, 17)
-mps = pohlig_hellman(569, 492, 507)
+mps = pohlig_hellman(2*3*5*7*11*13*17*19*23*29*31+1, 79, 17)
+# mps = pohlig_hellman(569, 492, 507)
+# mps = pohlig_hellman(569, 6, 7531)

@@ -32,7 +32,7 @@ class ElGamal:
         return pkD
 
     def encrypt(self, m, h, pkD):
-        print(f"encrypting message {h} with pkD = {pkD}")
+        print(f"ElGamal encrypting message {h} with pkD = {pkD}")
         indent()
         assert h < self.p
         print(f"h < p ✅")
@@ -53,7 +53,7 @@ class ElGamal:
         return (pkH, c)
 
     def decrypt(self, c, pkH, d):
-        print(f"decrypting ciphertext {c} with pkH = {pkH} and d = {d}")
+        print(f"ElGamal decrypting ciphertext {c} with pkH = {pkH} and d = {d}")
         indent()
         ss = pow(pkH, d, self.p)
         print(f"ss = pkH^d mod p = {pkH}^{d} mod {self.p} = {ss}")
@@ -68,7 +68,7 @@ class ElGamal:
         return m
 
     def recover_ss(self, m, c):
-        print(f"recovering shared secret from message {m} and ciphertext {c}")
+        print(f"recovering ElGamal shared secret from message {m} and ciphertext {c}")
         indent()
         m_inv = pow(m, -1, self.p)
         print(f"m^-1 mod p = {m}^-1 mod {self.p} = {m_inv}")
@@ -78,7 +78,7 @@ class ElGamal:
         return ss
     
     def sign(self, m, d, k):
-        print(f"signing message {m} with d = {d}, nonce k = {k}")
+        print(f"ElGamal signing message {m} with d = {d}, nonce k = {k}")
         indent()
 
         assert 0 < d < (self.p - 2)
@@ -104,7 +104,7 @@ class ElGamal:
     
     def verify(self, m, sigpair, pk):
         r, sig = sigpair
-        print(f"verifying signature ({r}, {sig}) on message {m} with pk = {pk}")
+        print(f"verifying ElGamal signature ({r}, {sig}) on message {m} with pk = {pk}")
         indent()
 
         assert 0 < r < self.p
@@ -117,15 +117,15 @@ class ElGamal:
         rhs = (pow(pk, r) * pow(r, sig)) % self.p
         print(f"pk^r * r^sig mod p = {pk}^{r} * {r}^{sig} mod {self.p} = {rhs}")
         if lhs == rhs:
-            print("g^m = pk^r * r^sig: signature is valid ✅")
+            print("g^m = pk^r * r^sig: ElGamal signature is valid ✅")
         else:
-            print("g^m ≠ pk^r * r^sig: signature is invalid ❌")
+            print("g^m ≠ pk^r * r^sig: ElGamal signature is invalid ❌")
         dedent()
         return lhs == rhs
     
     @staticmethod
     def nonce_reuse_attack(p, m1, sigpair1, m2, sigpair2):
-        print(f"recovering private key d from messages {m1} and {m2} with signatures {sigpair1}, {sigpair2}")
+        print(f"recovering ElGamal private key d from messages {m1} and {m2} with signatures {sigpair1}, {sigpair2}")
         assert sigpair1[0] == sigpair2[0]
         r, sig1 = sigpair1
         _, sig2 = sigpair2
@@ -145,7 +145,7 @@ class ElGamal:
         print(f"  = {(m2 - m1)} * {pow(sig2 - sig1, -1, p-1)} mod {p-1}")
         print(f"  = {k} ✅")
         dedent()
-        print(f"step 2: recover private key")
+        print(f"step 2: recover ElGamal private key")
         indent()
         print(f"sig1 = k^-1 * (m1 - d * r) mod (p-1)")
         print(f"  → d*r = m1 - sig1 * k mod (p-1)")
@@ -175,7 +175,7 @@ class ElGamal:
         assert r2v == r and sig2v == sig2
         print(f"sign({m2}, {d}, {k}) = ({r2v}, {sig2v}) ✅")
         dedent()
-        print(f"\nprivate key d = {d} 🏁")
+        print(f"\nElGamal private key d = {d} 🏁")
         dedent()
 
 
@@ -215,5 +215,5 @@ def test_signverif():
 
 
 # print(list(find_generators(227)))
-el = ElGamal(227, 5)
-ElGamal.nonce_reuse_attack(227, 100, (171, 154), 11, (171, 3))
+# el = ElGamal(227, 5)
+# ElGamal.nonce_reuse_attack(227, 100, (171, 154), 11, (171, 3))

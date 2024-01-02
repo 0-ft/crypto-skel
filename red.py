@@ -1,6 +1,8 @@
 # stronger = adversary has more powers, weaker = adversary has less powers
 def strong_to_weak_attack(stronger, weaker):
     print(f"To prove that a scheme secure against {stronger} is also secure against {weaker}, we can create a reduction from a {weaker} adversary to a {stronger} adversary.")
+    print(f"Don't forget: reduction logic => reduction => complexity => advantage => (assumptions)")
+
 
 
 # CPA attack is easier for the adversary than KPA attack. Easier to win CPA than KPA.
@@ -17,5 +19,5 @@ def strong_to_weak_attack(stronger, weaker):
 # UUF adversary has less powers because they don't get to choose the message
 # EUF goal is easier to achieve than UUF goal
 # UUF unforgeability is a weak security goal, because it's the hardest thing for an attacker to do
-strong_to_weak_attack("EUF", "UUF")
-# hard_to_easy_goal("UUF", "EUF")
+# strong_to_weak_attack("EUF", "UUF")
+# strong_to_weak_attack("EUF", "UUF")

@@ -35,10 +35,11 @@ class RSA:
         
 
     def keypair(self, e):
-        print(f"generating keypair with PUBLIC e = {e}")
+        print(f"generating RSA keypair with PUBLIC e = {e}")
         indent()
         assert self.phi
-        print(f"e < phi ✅")
+        # assert 2 < e < self.phi
+        # print(f"e < phi ✅")
         assert math.gcd(e, self.phi) == 1
         print("e is coprime to phi ✅")
 
@@ -52,12 +53,12 @@ class RSA:
 
     def encrypt(self, m, e):
         c = pow(m, e, self.n)
-        print(f"encrypted message {m}, c = {c} 🏁")
+        print(f"RSA encrypted message {m}, c = {c} 🏁")
         return c
 
     def encrypt_block(self, mm, e):
         cc = [pow(m, e, self.n) for m in mm]
-        print(f"encrypted message {mm}, c = {cc} 🏁")
+        print(f"RSA encrypted message {mm}, c = {cc} 🏁")
         return cc
 
     def decrypt(self, c, d):
@@ -67,20 +68,20 @@ class RSA:
 
     def decrypt_block(self, cc, d):
         m = [pow(c, d, self.n) for c in cc]
-        print(f"decrypted ciphertext {cc}, m = {m} 🏁")
+        print(f"RSA decrypted ciphertext {cc}, m = {m} 🏁")
         return m
 
     def sign(self, m, d):
         sig = pow(m, d, self.n)
-        print(f"signed message {m}, sig = {sig} 🏁")
+        print(f"RSA signed message {m} with secret key {d}, sig = {sig} 🏁")
         return sig
     
     def verify(self, m, sig, e):
         v = pow(sig, e, self.n) == m
         if v:
-            print(f"sig^e mod n = m: signature is valid ✅")
+            print(f"sig^e mod n = m: RSA signature is valid ✅")
         else:
-            print(f"sig^e mod n ≠ m: signature is invalid ❌")
+            print(f"sig^e mod n ≠ m: RSA signature is invalid ❌")
         return v
 
 # t = RSA(p=307, q=311)
@@ -105,3 +106,8 @@ def test_signverif():
         assert not rsa.verify(m+1, sig, pk[0])
         assert not rsa.verify(m, sig+1, pk[0])
         # assert verify(sign())
+
+
+# print(prime_factors(91))
+r = RSA(n=91)
+print(r.decrypt(r.encrypt(30, 73), 5))

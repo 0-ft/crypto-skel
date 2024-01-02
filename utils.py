@@ -1,6 +1,7 @@
 import math
 import builtins
 from itertools import islice
+import numpy as np
 
 ilevel = 0
 psuppress = False
@@ -37,6 +38,9 @@ def is_prime(n):
         if n % i == 0:
             return False
     return True
+
+smallprimes = [n for n in range(2, 400) if is_prime(n)]
+bigprimes = [n for n in range(10000, 100000) if is_prime(n)][::100]
 
 def mod_inverse(x, n):
     """
@@ -201,7 +205,7 @@ def square_and_multiply(base, exponent, modulus=None):
 #         print(tt)
 # mod_inverse(11, 17)
 
-def prime_factors(n, return_powers=False):
+def prime_factors(n, return_powers=False, return_power_pairs=False):
     factors = []
     N = n
     while n % 2 == 0:
@@ -215,7 +219,21 @@ def prime_factors(n, return_powers=False):
         factors.append(n)
     powers = [(f, factors.count(f)) for f in set(factors)]
     # print(f"{N} = {' * '.join([f'{f}^{p}' for f, p in powers])}")
-    return [b**e for b,e in powers] if return_powers else factors
+    if return_powers:
+        return [b**e for b,e in powers]
+    elif return_power_pairs:
+        return [(b,e) for b,e in powers]
+    return factors
+
+def group_order(g, p):
+    for i in range(1, p):
+        if pow(g, i, p) == 1:
+            return i
+    assert False, "no order found"
+    # phi = p - 1
+    # factors = prime_factors(phi)
+    # print(f"phi = {phi}")
+    # print(f"factors = {factor
 
 def is_generator(g, p):
     # print(f"{g, p}")
@@ -256,10 +274,62 @@ def find_generators(p):
 
 # find_generators(2*3*5*7*11*13*17*19*23*29*31+1)
 
-smallprimes = [n for n in range(2, 400) if is_prime(n)]
-bigprimes = [n for n in range(10000, 100000) if is_prime(n)][::100]
-
 # for g in find_generators(bigprimes[0]):
 #     print(g)
 
 # square_and_multiply(3, 13, 77)
+
+def npmatr_inv(matr):
+    return np.linalg.inv(np.array(matr))
+
+
+# def solve_equations(equations, mod):
+#     # Extracting coefficients and results
+#     coefficients = [eq[1] for eq in equations]
+#     results = [eq[0] for eq in equations]
+
+#     # Inverting the coefficient matrix
+#     inverted_matrix = matr_inv(coefficients, mod)
+#     # inverted_matrix = npmatr_inv(coefficients)
+#     print(inverted_matrix)
+#     # Multiplying inverted matrix with results
+#     solution = []
+#     for row in inverted_matrix:
+#         sum = 0
+#         for c, result in zip(row, results):
+#             sum += c * result
+#         solution.append(sum % mod)
+
+#     return solution
+
+def solve_modular_system(equations, modulo):
+    def add_row(row1, row2, factor):
+        return [(a + factor * b) % modulo for a, b in zip(row1, row2)]
+
+    def scale_row(row, factor):
+        return [a * factor % modulo for a in row]
+
+    def get_inv(num):
+        return pow(num, -1, modulo)
+
+    n = len(equations)
+    matrix = [eq[1] + [eq[0]] for eq in equations]
+
+    # Forward elimination
+    for i in range(n):
+        inv = get_inv(matrix[i][i])
+        matrix[i] = scale_row(matrix[i], inv)
+        for j in range(i + 1, n):
+            matrix[j] = add_row(matrix[j], matrix[i], -matrix[j][i])
+
+    # Backward substitution
+    for i in range(n - 1, -1, -1):
+        for j in range(i - 1, -1, -1):
+            matrix[j] = add_row(matrix[j], matrix[i], -matrix[j][i])
+
+    return [row[-1] for row in matrix]
+
+# # Example usage:
+# modulo = 7
+# equations = [(3, [1, 2]), (2, [3, 1])]
+# print(solve_modular_system(modulo, equations))
