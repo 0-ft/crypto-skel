@@ -8,7 +8,7 @@ def pollard_rho(p, g, gta):
     print(f"{p} is prime ✅")
     l = group_order(g, p)
     print(f"l = order of {g} in Z_{p} = {l}")
-    header = f"│ {'i':<4} │ {'Gi':<6} │ {'Gi % 3':<6} │ {'b0':<6} │ {'c0':<6} │"
+    header = f"│ {'i':<4} │ {'Gi':<6} │ {'Gi % 3':<6} │ {'bi':<6} │ {'ci':<6} │"
     print('┌' + '─' * (len(header) - 2) + '┐')
     print(header)
     print('├' + '─' * (len(header) - 2) + '┤')
