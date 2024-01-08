@@ -1,0 +1,5 @@
+- [x] Kerckhoff principle
+- [ ] Permutations (lec 1)
+- more explaining in mod_inverse calculator
+- pohlig hellman is broken?
+- RSA wrong?
