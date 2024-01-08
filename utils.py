@@ -1,7 +1,6 @@
 import math
 import builtins
 from itertools import islice
-import numpy as np
 
 ilevel = 0
 psuppress = False
@@ -68,22 +67,39 @@ def mod_inverse(x, n):
         x = m
     dedent()
 
-    # print("backtracking...")
-    # print(eq)
-    a, b = 0, 1
-    for n, q, x, m in reversed(eq):
-        a, b = b, a - q * b
-
+    print("backsubstituting to solve for a and b")
+    indent()
+    # a, b = 0, 1
+    # aa, bb = "0", "1"
+    # for n, q, x, m in eq[::-1]:
+    #     a, b = b, a - q * b
+    #     aa, bb = f"[{bb}]", f"{aa} - ({q} * {bb})"
+    #     # print(f"{m} = {n} - {q} * {x} = {a} * {original_n} + {b} * {original_x}")
+    #     print(f"a = {aa} = {a}\nb = {bb} = {b}\n")
         # n, x = x, (n - q * x) % original_n
+
+    # a, b = 1, -eq[0][1]
+    # cn, cx = 1, -eq[0][1]
+    cc = ((1, eq[-1][0]), (eq[-1][1], eq[-1][2]))
+    for (n1, q1, x1, m1) in eq[::-1][1:]:
+        print(f"1 = {cc[0][0]} * {cc[0][1]} - {cc[1][0]} * {cc[1][1]}   sub {m1} = {n1} - {q1} * {x1}")
+        print(f"  = {cc[0][0]} * {cc[0][1]} - {cc[1][0]} * ({n1} - {q1} * {x1})")
+        print(f"  = ({cc[0][0]} + {cc[1][0]} * {q1}) * {cc[0][1]} - {cc[1][0]} * {n1}")
+        print(f"  = {cc[0][0] + cc[1][0] * q1} * {cc[0][1]} - {cc[1][0]} * {n1}")
+        cc = ((-cc[1][0], n1), (-(cc[0][0] + cc[1][0] * q1), cc[0][1]))
+    a, b = cc[0][0], -cc[1][0]
+    # print(f"cn = {cn}, cx = {cx}")
+    dedent()
+
     assert a * original_n + b * original_x == 1
-    print(f"solved ax + bn = 1: a = {a}, b = {b}")
+    print(f"solved ax + bn = 1: {a} * {x} + {b} * {n} = 1, a = {a}, b = {b} ✅")
 
     if a < 0:
-        a += original_n
         print(f"negative a, a+n={a+original_n}")
+        a += original_n
     if b < 0:
-        b += original_x
         print(f"negative b, b+n={b+original_n}")
+        b += original_x
 
     inv = pow(original_x, -1, original_n)
 
@@ -253,54 +269,10 @@ def is_generator(g, p):
     # return False
 
 def find_generators(p):
-    # print(f"finding generators of Z_{p}")
-    # indent()
     assert is_prime(p)
-    # print(f"{p} is prime ✅")
-    # phi = p - 1
-    # factors = prime_factors(phi)
-    # print(f"phi = {phi}")
-    # dedent()
-    # generators = []
     for g in range(2, p):
         if is_generator(g, p):
             yield g
-            # generators.append(g)
-        # if len(generators) >= max:
-        #     break
-    # print(f"generators = {generators}... 🏁")
-    # dedent()
-    # return generators
-
-# find_generators(2*3*5*7*11*13*17*19*23*29*31+1)
-
-# for g in find_generators(bigprimes[0]):
-#     print(g)
-
-# square_and_multiply(3, 13, 77)
-
-def npmatr_inv(matr):
-    return np.linalg.inv(np.array(matr))
-
-
-# def solve_equations(equations, mod):
-#     # Extracting coefficients and results
-#     coefficients = [eq[1] for eq in equations]
-#     results = [eq[0] for eq in equations]
-
-#     # Inverting the coefficient matrix
-#     inverted_matrix = matr_inv(coefficients, mod)
-#     # inverted_matrix = npmatr_inv(coefficients)
-#     print(inverted_matrix)
-#     # Multiplying inverted matrix with results
-#     solution = []
-#     for row in inverted_matrix:
-#         sum = 0
-#         for c, result in zip(row, results):
-#             sum += c * result
-#         solution.append(sum % mod)
-
-#     return solution
 
 def solve_modular_system(equations, modulo):
     def add_row(row1, row2, factor):
@@ -333,3 +305,5 @@ def solve_modular_system(equations, modulo):
 # modulo = 7
 # equations = [(3, [1, 2]), (2, [3, 1])]
 # print(solve_modular_system(modulo, equations))
+
+mod_inverse(18, 65)
